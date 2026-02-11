@@ -5,7 +5,7 @@ export function getStatusColor(status: FlightStatus): string {
     scheduled: "text-muted-foreground",
     boarding: "text-primary",
     departed: "text-primary",
-    en_route: "text-primary",
+    en_route: "text-info",
     arrived: "text-success",
     delayed: "text-warning",
     cancelled: "text-destructive",
@@ -39,10 +39,10 @@ export function formatTime(iso: string | null): string {
 
 export function getFlightCategoryColor(cat: "VFR" | "MVFR" | "IFR" | "LIFR"): string {
   const map = {
-    VFR: "text-success",
-    MVFR: "text-primary",
-    IFR: "text-destructive",
-    LIFR: "text-destructive",
+    VFR: "text-vfr",
+    MVFR: "text-mvfr",
+    IFR: "text-ifr",
+    LIFR: "text-lifr",
   };
   return map[cat];
 }
