@@ -2,57 +2,160 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 92%;
+    /* Background surfaces */
+    --background: 0 0% 100%;
+    --background-secondary: 210 17% 98%;
+    --background-tertiary: 210 16% 95%;
 
-    --card: 222 44% 9%;
-    --card-foreground: 210 40% 92%;
+    /* Text */
+    --foreground: 213 14% 13%;
+    --foreground-secondary: 213 5% 39%;
+    --foreground-tertiary: 213 5% 63%;
 
-    --popover: 222 44% 9%;
-    --popover-foreground: 210 40% 92%;
+    /* Card / Popover */
+    --card: 0 0% 100%;
+    --card-foreground: 213 14% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 14% 13%;
 
-    --primary: 190 95% 50%;
-    --primary-foreground: 222 47% 6%;
+    /* Primary action */
+    --primary: 214 83% 51%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 30% 16%;
-    --secondary-foreground: 210 40% 85%;
+    /* Secondary */
+    --secondary: 210 17% 98%;
+    --secondary-foreground: 213 14% 13%;
 
-    --muted: 222 30% 14%;
-    --muted-foreground: 215 20% 55%;
+    /* Muted */
+    --muted: 210 16% 95%;
+    --muted-foreground: 213 5% 39%;
 
-    --accent: 38 95% 55%;
-    --accent-foreground: 222 47% 6%;
+    /* Accent */
+    --accent: 210 16% 95%;
+    --accent-foreground: 213 14% 13%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
+    /* Semantic */
+    --success: 145 63% 42%;
+    --success-foreground: 0 0% 100%;
+    --warning: 43 96% 50%;
+    --warning-foreground: 213 14% 13%;
+    --destructive: 5 81% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --info: 217 89% 61%;
+    --info-foreground: 0 0% 100%;
 
-    --success: 142 72% 45%;
-    --success-foreground: 222 47% 6%;
+    /* Aviation flight categories */
+    --vfr: 152 100% 36%;
+    --mvfr: 240 100% 50%;
+    --ifr: 0 100% 50%;
+    --lifr: 300 100% 50%;
 
-    --warning: 38 95% 55%;
-    --warning-foreground: 222 47% 6%;
+    /* Border / Input / Ring */
+    --border: 218 18% 86%;
+    --input: 218 18% 86%;
+    --ring: 214 83% 51%;
 
-    --border: 222 30% 18%;
-    --input: 222 30% 18%;
-    --ring: 190 95% 50%;
-
+    /* Radius */
     --radius: 0.5rem;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
 
-    --sidebar-background: 222 44% 8%;
-    --sidebar-foreground: 210 40% 85%;
-    --sidebar-primary: 190 95% 50%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 222 30% 14%;
-    --sidebar-accent-foreground: 210 40% 85%;
-    --sidebar-border: 222 30% 18%;
-    --sidebar-ring: 190 95% 50%;
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
 
-    --font-mono: 'JetBrains Mono', monospace;
-    --font-sans: 'Inter', system-ui, sans-serif;
+    /* Sidebar */
+    --sidebar-background: 210 17% 98%;
+    --sidebar-foreground: 213 14% 13%;
+    --sidebar-primary: 214 83% 51%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 16% 95%;
+    --sidebar-accent-foreground: 213 14% 13%;
+    --sidebar-border: 218 18% 86%;
+    --sidebar-ring: 214 83% 51%;
+
+    /* Fonts */
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'Menlo', 'Monaco', 'Consolas', monospace;
+
+    /* Transition */
+    --transition-theme: 300ms ease;
+  }
+
+  .dark {
+    /* Background surfaces */
+    --background: 0 0% 7%;
+    --background-secondary: 0 0% 12%;
+    --background-tertiary: 0 0% 16%;
+
+    /* Text */
+    --foreground: 220 13% 91%;
+    --foreground-secondary: 213 5% 63%;
+    --foreground-tertiary: 213 5% 39%;
+
+    /* Card / Popover */
+    --card: 0 0% 12%;
+    --card-foreground: 220 13% 91%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 220 13% 91%;
+
+    /* Primary */
+    --primary: 214 83% 51%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 220 13% 91%;
+
+    /* Muted */
+    --muted: 0 0% 16%;
+    --muted-foreground: 213 5% 63%;
+
+    /* Accent */
+    --accent: 0 0% 16%;
+    --accent-foreground: 220 13% 91%;
+
+    /* Semantic — same hues, same values */
+    --success: 145 63% 42%;
+    --success-foreground: 0 0% 100%;
+    --warning: 43 96% 50%;
+    --warning-foreground: 0 0% 7%;
+    --destructive: 5 81% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --info: 217 89% 61%;
+    --info-foreground: 0 0% 100%;
+
+    /* Aviation categories unchanged */
+    --vfr: 152 100% 36%;
+    --mvfr: 240 100% 50%;
+    --ifr: 0 100% 50%;
+    --lifr: 300 100% 50%;
+
+    /* Border / Input / Ring */
+    --border: 200 5% 25%;
+    --input: 200 5% 25%;
+    --ring: 214 83% 51%;
+
+    /* Shadows — darker */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 220 13% 91%;
+    --sidebar-primary: 214 83% 51%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 220 13% 91%;
+    --sidebar-border: 200 5% 25%;
+    --sidebar-ring: 214 83% 51%;
   }
 }
 
@@ -61,34 +164,86 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: var(--font-sans);
+  html {
+    color-scheme: light;
   }
 
-  .font-mono {
-    font-family: var(--font-mono);
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    transition: background-color var(--transition-theme), color var(--transition-theme);
+  }
+
+  /* Theme transition for all surfaces */
+  .theme-transition,
+  .theme-transition * {
+    transition: background-color var(--transition-theme),
+                color var(--transition-theme),
+                border-color var(--transition-theme),
+                box-shadow var(--transition-theme);
   }
 }
 
 @layer utilities {
+  /* Typography helpers */
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
   .text-data {
     font-family: var(--font-mono);
     @apply tracking-wide;
   }
 
-  .glow-primary {
-    box-shadow: 0 0 20px hsl(190 95% 50% / 0.15), 0 0 60px hsl(190 95% 50% / 0.05);
+  .text-secondary {
+    color: hsl(var(--foreground-secondary));
   }
 
-  .glow-accent {
-    box-shadow: 0 0 20px hsl(38 95% 55% / 0.15), 0 0 60px hsl(38 95% 55% / 0.05);
+  .text-tertiary {
+    color: hsl(var(--foreground-tertiary));
   }
 
+  /* Surface helpers */
+  .bg-surface-secondary {
+    background-color: hsl(var(--background-secondary));
+  }
+
+  .bg-surface-tertiary {
+    background-color: hsl(var(--background-tertiary));
+  }
+
+  /* Shadow helpers */
+  .shadow-theme-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-theme-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-theme-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Aviation category colors */
+  .text-vfr { color: hsl(var(--vfr)); }
+  .text-mvfr { color: hsl(var(--mvfr)); }
+  .text-ifr { color: hsl(var(--ifr)); }
+  .text-lifr { color: hsl(var(--lifr)); }
+  .bg-vfr { background-color: hsl(var(--vfr)); }
+  .bg-mvfr { background-color: hsl(var(--mvfr)); }
+  .bg-ifr { background-color: hsl(var(--ifr)); }
+  .bg-lifr { background-color: hsl(var(--lifr)); }
+
+  /* Aviation grid background */
   .aviation-grid {
-    background-image: 
-      linear-gradient(hsl(222 30% 18% / 0.3) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(222 30% 18% / 0.3) 1px, transparent 1px);
+    background-image:
+      linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 }

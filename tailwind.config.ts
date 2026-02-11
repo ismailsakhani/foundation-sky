@@ -12,10 +12,20 @@ export default {
         "2xl": "1400px",
       },
     },
+    // Spacing uses 8px base unit: 1=4px, 2=8px, 4=16px, 6=24px, 8=32px, 12=48px, 16=64px
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["Menlo", "Monaco", "Consolas", "monospace"],
+      },
+      fontSize: {
+        xs: ["0.75rem", { lineHeight: "1rem" }],       // 12px
+        sm: ["0.875rem", { lineHeight: "1.25rem" }],    // 14px
+        base: ["1rem", { lineHeight: "1.5rem" }],       // 16px
+        lg: ["1.125rem", { lineHeight: "1.75rem" }],    // 18px
+        xl: ["1.25rem", { lineHeight: "1.75rem" }],     // 20px
+        "2xl": ["1.5rem", { lineHeight: "2rem" }],      // 24px
+        "3xl": ["1.875rem", { lineHeight: "2.25rem" }], // 30px
       },
       colors: {
         border: "hsl(var(--border))",
@@ -43,6 +53,10 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -59,6 +73,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Aviation flight categories
+        vfr: "hsl(var(--vfr))",
+        mvfr: "hsl(var(--mvfr))",
+        ifr: "hsl(var(--ifr))",
+        lifr: "hsl(var(--lifr))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -71,9 +90,15 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        full: "9999px",
+      },
+      boxShadow: {
+        "theme-sm": "var(--shadow-sm)",
+        "theme-md": "var(--shadow-md)",
+        "theme-lg": "var(--shadow-lg)",
       },
       keyframes: {
         "accordion-down": {
@@ -84,20 +109,20 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "pulse-glow": {
-          "0%, 100%": { opacity: "0.4" },
-          "50%": { opacity: "1" },
-        },
         "slide-up": {
           from: { opacity: "0", transform: "translateY(10px)" },
           to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "0.4" },
+          "50%": { opacity: "1" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "slide-up": "slide-up 0.3s ease-out",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
       },
     },
   },
