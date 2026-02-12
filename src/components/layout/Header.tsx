@@ -1,11 +1,11 @@
-import { Plane, Bell, Sun, Moon } from "lucide-react";
+import { Plane, Sun, Moon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
+import { NotificationBadge } from "@/components/composite/NotificationBadge";
 
 const navItems = [
   { label: "Search", path: "/" },
-  { label: "Notifications", path: "/notifications" },
 ];
 
 const Header = () => {
@@ -36,13 +36,10 @@ const Header = () => {
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {item.label === "Notifications" ? (
-                <Bell className="h-4 w-4" />
-              ) : (
-                item.label
-              )}
+              {item.label}
             </Link>
           ))}
+          <NotificationBadge count={0} />
           <button
             onClick={toggleTheme}
             className="ml-2 rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground"

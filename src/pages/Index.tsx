@@ -1,6 +1,8 @@
-import { Search, Plane, CloudSun, Radio } from "lucide-react";
-import { useState } from "react";
+import { Plane, CloudSun, Radio } from "lucide-react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { SearchBar } from "@/components/composite/SearchBar";
+import type { SearchSuggestion } from "@/types/api";
 
 const quickLinks = [
   { label: "JFK", type: "airport" },
@@ -9,26 +11,57 @@ const quickLinks = [
   { label: "ATL", type: "airport" },
 ];
 
+// Mock suggestions for demo — will be replaced with API call
+const mockSuggestions: SearchSuggestion[] = [
+  { type: "flight", value: "AAL100", label: "AA 100", sublabel: "JFK → LAX" },
+  { type: "flight", value: "UAL237", label: "UA 237", sublabel: "ORD → SFO" },
+  { type: "airport", value: "KJFK", label: "KJFK", sublabel: "John F. Kennedy Intl" },
+  { type: "airport", value: "KLAX", label: "KLAX", sublabel: "Los Angeles Intl" },
+  { type: "gate", value: "JFK-B22", label: "B22", sublabel: "JFK Terminal 4" },
+];
+
 const Index = () => {
-  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      navigate(`/details?q=${encodeURIComponent(query.trim())}`);
+  const handleSearch = useCallback((query: string) => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
     }
-  };
+    setLoading(true);
+    // Simulate API — filter mock data
+    setTimeout(() => {
+      const q = query.toLowerCase();
+      setSuggestions(
+        mockSuggestions.filter(
+          (s) =>
+            s.label.toLowerCase().includes(q) ||
+            s.sublabel.toLowerCase().includes(q) ||
+            s.value.toLowerCase().includes(q),
+        ),
+      );
+      setLoading(false);
+    }, 200);
+  }, []);
+
+  const handleSelect = useCallback(
+    (s: SearchSuggestion) => {
+      navigate(`/details?q=${encodeURIComponent(s.value)}`);
+    },
+    [navigate],
+  );
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center aviation-grid">
       <div className="w-full max-w-2xl px-6 animate-slide-up">
         {/* Hero */}
         <div className="mb-10 text-center">
-          <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 glow-primary">
+          <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
             <Plane className="h-7 w-7 text-primary" />
           </div>
-          <h1 className="text-data text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="font-mono text-3xl font-bold tracking-tight text-foreground">
             FLIGHT<span className="text-primary">OPS</span>
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -37,18 +70,12 @@ const Index = () => {
         </div>
 
         {/* Search */}
-        <form onSubmit={handleSearch} className="relative">
-          <div className="group relative">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search flight, airport, or gate..."
-              className="h-14 w-full rounded-xl border border-border bg-card pl-12 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-            />
-          </div>
-        </form>
+        <SearchBar
+          onSearch={handleSearch}
+          onSuggestionSelect={handleSelect}
+          suggestions={suggestions}
+          loading={loading}
+        />
 
         {/* Quick links */}
         <div className="mt-4 flex items-center justify-center gap-2">
@@ -57,7 +84,7 @@ const Index = () => {
             <button
               key={link.label}
               onClick={() => navigate(`/details?q=${link.label}`)}
-              className="rounded-md bg-secondary px-3 py-1 text-data text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
+              className="rounded-md bg-secondary px-3 py-1 font-mono text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
             >
               {link.label}
             </button>
