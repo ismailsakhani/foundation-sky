@@ -6,3 +6,4 @@ export { WeatherCard } from "./WeatherCard";
 export { GateList } from "./GateList";
 export { NotificationToggle } from "./NotificationToggle";
 export { NotificationBadge } from "./NotificationBadge";
+export { ErrorCard } from "./ErrorCard";
