@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/hooks/use-auth";
+import { useNotifications } from "@/hooks/use-notifications";
 import { NotificationBadge } from "@/components/composite/NotificationBadge";
 import { LoginButton } from "@/components/composite/LoginButton";
 
@@ -16,14 +17,13 @@ const Header = () => {
   const location = useLocation();
   const { resolvedTheme, toggleTheme } = useTheme();
   const { user, isAnonymous, loginWithGoogle, logout } = useAuth();
+  const { unreadCount } = useNotifications(user?.email);
 
   const handleGoogleLogin = () => {
     if (!GOOGLE_CLIENT_ID) {
       console.warn("[Auth] VITE_GOOGLE_CLIENT_ID not configured");
       return;
     }
-    // Trigger Google One Tap or redirect — for now log a message
-    // Full OAuth flow requires @react-oauth/google provider wrapping
     console.info("[Auth] Google login triggered — configure OAuth provider to enable");
   };
 
@@ -54,7 +54,7 @@ const Header = () => {
               {item.label}
             </Link>
           ))}
-          <NotificationBadge count={0} />
+          <NotificationBadge count={unreadCount} />
           <LoginButton
             user={user}
             isAnonymous={isAnonymous}
