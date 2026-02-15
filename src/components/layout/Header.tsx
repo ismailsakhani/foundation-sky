@@ -2,15 +2,30 @@ import { Plane, Sun, Moon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
+import { useAuth } from "@/hooks/use-auth";
 import { NotificationBadge } from "@/components/composite/NotificationBadge";
+import { LoginButton } from "@/components/composite/LoginButton";
 
 const navItems = [
   { label: "Search", path: "/" },
 ];
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
 const Header = () => {
   const location = useLocation();
   const { resolvedTheme, toggleTheme } = useTheme();
+  const { user, isAnonymous, loginWithGoogle, logout } = useAuth();
+
+  const handleGoogleLogin = () => {
+    if (!GOOGLE_CLIENT_ID) {
+      console.warn("[Auth] VITE_GOOGLE_CLIENT_ID not configured");
+      return;
+    }
+    // Trigger Google One Tap or redirect — for now log a message
+    // Full OAuth flow requires @react-oauth/google provider wrapping
+    console.info("[Auth] Google login triggered — configure OAuth provider to enable");
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
@@ -40,9 +55,15 @@ const Header = () => {
             </Link>
           ))}
           <NotificationBadge count={0} />
+          <LoginButton
+            user={user}
+            isAnonymous={isAnonymous}
+            onGoogleLogin={handleGoogleLogin}
+            onLogout={logout}
+          />
           <button
             onClick={toggleTheme}
-            className="ml-2 rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+            className="ml-1 rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground"
             aria-label="Toggle theme"
           >
             {resolvedTheme === "dark" ? (
