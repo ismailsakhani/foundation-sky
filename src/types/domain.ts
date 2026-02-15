@@ -1,9 +1,10 @@
 export interface User {
   id: string;
   email: string;
-  provider: "google" | "email";
+  provider: "google" | "email" | "anonymous";
   loginTime: string;
   displayName?: string;
+  avatarUrl?: string;
 }
 
 export interface NotificationPreference {
