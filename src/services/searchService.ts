@@ -9,10 +9,18 @@ export const searchService = {
     limit = 10,
   ): Promise<SearchSuggestion[]> => {
     if (!query.trim()) return [];
+    // Changed 'q' to 'query' to match backend expectations
     const { data } = await client.get<SearchSuggestion[]>(
       `/searches/suggestions/${encodeURIComponent(email)}`,
-      { params: { q: query, limit } },
+      { params: { query, limit } }, 
     );
+    return data;
+  },
+
+  /** Fetch raw search query results. */
+  fetchRawQuery: async (query: string): Promise<any> => {
+    // Re-added from your legacy cirrostrats frontend
+    const { data } = await client.get('/query', { params: { search: query } });
     return data;
   },
 

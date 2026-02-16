@@ -1,9 +1,11 @@
 import { Plane, CloudSun, Radio, Clock, X } from "lucide-react";
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/composite/SearchBar";
 import { useAuth } from "@/hooks/use-auth";
 import { useRecentSearches } from "@/hooks/use-recent-searches";
+import { useSearch } from "@/hooks/use-search";
+import { searchService } from "@/services/searchService";
 import type { SearchSuggestion } from "@/types/api";
 
 const quickLinks = [
@@ -13,15 +15,6 @@ const quickLinks = [
   { label: "ATL", type: "airport" },
 ];
 
-// Mock suggestions for demo — will be replaced with API call
-const mockSuggestions: SearchSuggestion[] = [
-  { type: "flight", value: "AAL100", label: "AA 100", sublabel: "JFK → LAX" },
-  { type: "flight", value: "UAL237", label: "UA 237", sublabel: "ORD → SFO" },
-  { type: "airport", value: "KJFK", label: "KJFK", sublabel: "John F. Kennedy Intl" },
-  { type: "airport", value: "KLAX", label: "KLAX", sublabel: "Los Angeles Intl" },
-  { type: "gate", value: "JFK-B22", label: "B22", sublabel: "JFK Terminal 4" },
-];
-
 const typeIcons: Record<string, React.ElementType> = {
   flight: Plane,
   airport: CloudSun,
@@ -29,38 +22,46 @@ const typeIcons: Record<string, React.ElementType> = {
 };
 
 const Index = () => {
-  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user, isAnonymous } = useAuth();
   const { recent, addRecent, clearRecent } = useRecentSearches();
+  
+  // 1. Use the real API hook instead of mock state
+  const { suggestions, isLoading, debouncedSearch, submitSearch } = useSearch();
 
-  const handleSearch = useCallback((query: string) => {
-    if (!query.trim()) {
-      setSuggestions([]);
+  // 2. Handle when user TYPES but doesn't select a dropdown item
+  const handleRawSearchSubmit = useCallback(async (query: string) => {
+    if (!query.trim()) return;
+    
+    // Check if the query matches an existing suggestion exactly
+    const exactMatch = suggestions.find(
+      (s) => s.label.toLowerCase() === query.toLowerCase() || s.value.toLowerCase() === query.toLowerCase()
+    );
+
+    if (exactMatch) {
+      handleSelect(exactMatch);
       return;
     }
-    setLoading(true);
-    setTimeout(() => {
-      const q = query.toLowerCase();
-      setSuggestions(
-        mockSuggestions.filter(
-          (s) =>
-            s.label.toLowerCase().includes(q) ||
-            s.sublabel.toLowerCase().includes(q) ||
-            s.value.toLowerCase().includes(q),
-        ),
-      );
-      setLoading(false);
-    }, 200);
-  }, []);
 
+    // Fallback: If no exact match in dropdown, assume it's an airport or flight ID and try to load it
+    // (This mimics your old handleStringSubmit logic)
+    const fallbackType = query.length <= 4 && !/\d/.test(query) ? "airport" : "flight";
+    
+    navigate(`/details?q=${encodeURIComponent(query.toUpperCase())}&type=${fallbackType}`);
+  }, [suggestions, navigate]);
+
+  // 3. Handle when user CLICKS a dropdown item
   const handleSelect = useCallback(
     (s: SearchSuggestion) => {
       addRecent(s);
-      navigate(`/details?q=${encodeURIComponent(s.value)}&type=${s.type}`);
+      submitSearch(s); // Track it in backend
+      
+      // The API returns 'value' or 'label', we use 'value' to fetch details
+      // Some backend objects might store the real ID in metadata, so we default to value
+      const searchId = s.value || s.label;
+      navigate(`/details?q=${encodeURIComponent(searchId)}&type=${s.type}`);
     },
-    [navigate, addRecent],
+    [navigate, addRecent, submitSearch],
   );
 
   const now = new Date();
@@ -80,7 +81,7 @@ const Index = () => {
             <Plane className="h-7 w-7 text-primary" />
           </div>
           <h1 className="font-mono text-3xl font-bold tracking-tight text-foreground">
-            FLIGHT<span className="text-primary">OPS</span>
+            CIRRO<span className="text-primary">STRATS</span>
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Real-time flight tracking, weather, and gate information
@@ -94,10 +95,11 @@ const Index = () => {
 
         {/* Search */}
         <SearchBar
-          onSearch={handleSearch}
+          onSearch={debouncedSearch}
+          onSubmitRaw={handleRawSearchSubmit} 
           onSuggestionSelect={handleSelect}
           suggestions={suggestions}
-          loading={loading}
+          loading={isLoading}
         />
 
         {/* Quick links */}

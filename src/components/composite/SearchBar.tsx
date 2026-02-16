@@ -6,6 +6,16 @@ import type { SearchSuggestion } from "@/types/api";
 interface SearchBarProps {
   onSearch: (query: string) => void;
   onSuggestionSelect?: (suggestion: SearchSuggestion) => void;
+  onSubmitRaw?: (query: string) => void; // <--- ADD THIS LINE
+  suggestions?: SearchSuggestion[];
+  loading?: boolean;
+  placeholder?: string;
+  className?: string;
+}
+
+interface SearchBarProps {
+  onSearch: (query: string) => void;
+  onSuggestionSelect?: (suggestion: SearchSuggestion) => void;
   suggestions?: SearchSuggestion[];
   loading?: boolean;
   placeholder?: string;
@@ -26,6 +36,7 @@ const typeLabels: Record<SearchSuggestion["type"], string> = {
 
 export function SearchBar({
   onSearch,
+  onSubmitRaw, // <--- ADD THIS LINE
   onSuggestionSelect,
   suggestions = [],
   loading = false,
@@ -68,17 +79,24 @@ export function SearchBar({
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!open) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
+      if (!open) setOpen(true);
       setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActiveIdx((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter" && activeIdx >= 0) {
+    } else if (e.key === "Enter") {
       e.preventDefault();
-      onSuggestionSelect?.(suggestions[activeIdx]);
-      setOpen(false);
+      if (activeIdx >= 0 && suggestions.length > 0) {
+        // User selected an item from dropdown
+        onSuggestionSelect?.(suggestions[activeIdx]);
+        setOpen(false);
+      } else if (query.trim().length > 0) {
+        // User just typed a raw string (e.g. "EWR") and hit Enter
+        onSubmitRaw?.(query);
+        setOpen(false);
+      }
     } else if (e.key === "Escape") {
       setOpen(false);
     }

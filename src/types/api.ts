@@ -31,60 +31,18 @@ export interface EDCT {
   reason: string;
 }
 
-export interface METAR {
+export interface WeatherBlock {
   raw: string;
-  station: string;
-  observationTime: string;
-  wind: {
-    direction: number;
-    speed: number;
-    gust: number | null;
-    unit: string;
-  };
-  temperature: number;
-  dewpoint: number;
-  visibility: number;
-  ceiling: number | null;
-  clouds: CloudLayer[];
-  altimeter: number;
-  flightCategory: "VFR" | "MVFR" | "IFR" | "LIFR";
-}
-
-export interface CloudLayer {
-  coverage: "FEW" | "SCT" | "BKN" | "OVC";
-  altitude: number;
-}
-
-export interface TAF {
-  raw: string;
-  station: string;
-  issueTime: string;
-  validFrom: string;
-  validTo: string;
-  forecasts: TAFForecast[];
-}
-
-export interface TAFForecast {
-  type: "BASE" | "TEMPO" | "BECMG" | "FM";
-  fromTime: string;
-  toTime: string;
-  wind: {
-    direction: number;
-    speed: number;
-    gust: number | null;
-  };
-  visibility: number;
-  clouds: CloudLayer[];
-  flightCategory: "VFR" | "MVFR" | "IFR" | "LIFR";
+  zt: string; // The "55 mins ago" recency string from your backend
 }
 
 export interface AirportWeather {
   icao: string;
   name: string;
-  metar: METAR | null;
-  taf: TAF | null;
-  datis: string | null;
-  nas: NASStatus | null;
+  metar: WeatherBlock | null;
+  taf: WeatherBlock | null;
+  datis: WeatherBlock | null;
+  nas: NASStatus | null; // Leave NASStatus interface exactly as it is further down the file
 }
 
 export interface NASStatus {

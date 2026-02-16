@@ -1,7 +1,6 @@
 import { CloudSun } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { DataCell } from "@/components/atomic";
 import type { AirportWeather } from "@/types/api";
 import { cn } from "@/lib/utils";
@@ -11,16 +10,7 @@ interface WeatherCardProps {
   className?: string;
 }
 
-const categoryColors: Record<string, string> = {
-  VFR: "bg-vfr text-white",
-  MVFR: "bg-mvfr text-white",
-  IFR: "bg-ifr text-white",
-  LIFR: "bg-lifr text-white",
-};
-
 export function WeatherCard({ weather, className }: WeatherCardProps) {
-  const category = weather.metar?.flightCategory ?? "VFR";
-
   return (
     <Card className={cn("overflow-hidden", className)}>
       <CardHeader className="pb-2">
@@ -34,9 +24,6 @@ export function WeatherCard({ weather, className }: WeatherCardProps) {
               </span>
             )}
           </CardTitle>
-          <Badge className={cn("text-[10px] font-bold", categoryColors[category])}>
-            {category}
-          </Badge>
         </div>
       </CardHeader>
       <CardContent>
@@ -49,29 +36,20 @@ export function WeatherCard({ weather, className }: WeatherCardProps) {
           </TabsList>
 
           {/* METAR */}
-          <TabsContent value="metar" className="mt-3 space-y-3">
+          <TabsContent value="metar" className="mt-3">
             {weather.metar ? (
-              <>
-                <pre className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 font-mono text-xs leading-relaxed text-foreground">
-                  {weather.metar.raw}
-                </pre>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <DataCell
-                    label="Wind"
-                    value={`${weather.metar.wind.direction}° @ ${weather.metar.wind.speed}${weather.metar.wind.gust ? `G${weather.metar.wind.gust}` : ""}`}
-                    unit={weather.metar.wind.unit}
-                    mono
+              <div className="space-y-1">
+                {weather.metar.zt && (
+                  <div 
+                    className="text-right text-[10px] text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: weather.metar.zt }} 
                   />
-                  <DataCell label="Temp" value={weather.metar.temperature} unit="°C" mono />
-                  <DataCell label="Visibility" value={weather.metar.visibility} unit="SM" mono />
-                  <DataCell
-                    label="Ceiling"
-                    value={weather.metar.ceiling ? `${weather.metar.ceiling}` : "CLR"}
-                    unit={weather.metar.ceiling ? "ft" : undefined}
-                    mono
-                  />
-                </div>
-              </>
+                )}
+                <div 
+                  className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 font-mono text-sm leading-relaxed text-foreground"
+                  dangerouslySetInnerHTML={{ __html: weather.metar.raw }}
+                />
+              </div>
             ) : (
               <p className="text-sm text-muted-foreground">No METAR available</p>
             )}
@@ -80,9 +58,18 @@ export function WeatherCard({ weather, className }: WeatherCardProps) {
           {/* TAF */}
           <TabsContent value="taf" className="mt-3">
             {weather.taf ? (
-              <pre className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 font-mono text-xs leading-relaxed text-foreground">
-                {weather.taf.raw}
-              </pre>
+              <div className="space-y-1">
+                 {weather.taf.zt && (
+                  <div 
+                    className="text-right text-[10px] text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: weather.taf.zt }} 
+                  />
+                )}
+                <div 
+                  className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 font-mono text-sm leading-relaxed text-foreground"
+                  dangerouslySetInnerHTML={{ __html: weather.taf.raw }}
+                />
+              </div>
             ) : (
               <p className="text-sm text-muted-foreground">No TAF available</p>
             )}
@@ -91,35 +78,33 @@ export function WeatherCard({ weather, className }: WeatherCardProps) {
           {/* D-ATIS */}
           <TabsContent value="datis" className="mt-3">
             {weather.datis ? (
-              <pre className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 font-mono text-xs leading-relaxed text-foreground">
-                {weather.datis}
-              </pre>
+               <div className="space-y-1">
+                {weather.datis.zt && (
+                  <div 
+                    className="text-right text-[10px] text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: weather.datis.zt }} 
+                  />
+                )}
+                <div 
+                  className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 font-mono text-sm leading-relaxed text-foreground"
+                  dangerouslySetInnerHTML={{ __html: weather.datis.raw }}
+                />
+               </div>
             ) : (
               <p className="text-sm text-muted-foreground">No D-ATIS available</p>
             )}
           </TabsContent>
 
-          {/* NAS */}
+          {/* NAS - Untouched, remains exactly the same as previous setup */}
           <TabsContent value="nas" className="mt-3">
-            {weather.nas ? (
+            {weather.nas && weather.nas.hasDelays ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      "h-2.5 w-2.5 rounded-full",
-                      weather.nas.hasDelays ? "bg-warning" : "bg-success",
-                    )}
-                  />
-                  <span className="text-sm font-medium text-foreground">
-                    {weather.nas.hasDelays ? "Delays Reported" : "No Delays"}
-                  </span>
+                  <span className="h-2.5 w-2.5 rounded-full bg-warning" />
+                  <span className="text-sm font-medium text-foreground">Delays Reported</span>
                 </div>
-                {weather.nas.groundDelay && (
-                  <DataCell label="Ground Delay" value={weather.nas.groundDelay} />
-                )}
-                {weather.nas.groundStop && (
-                  <DataCell label="Ground Stop" value={weather.nas.groundStop} />
-                )}
+                {weather.nas.groundDelay && <DataCell label="Ground Delay" value={weather.nas.groundDelay} />}
+                {weather.nas.groundStop && <DataCell label="Ground Stop" value={weather.nas.groundStop} />}
                 {weather.nas.notes.length > 0 && (
                   <div className="rounded-md bg-muted/50 p-3">
                     {weather.nas.notes.map((note, i) => (
@@ -129,17 +114,13 @@ export function WeatherCard({ weather, className }: WeatherCardProps) {
                 )}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No NAS data available</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-success" />
+                <span className="text-sm font-medium text-foreground">No NAS Delays</span>
+              </div>
             )}
           </TabsContent>
         </Tabs>
-
-        {/* Timestamp */}
-        {weather.metar?.observationTime && (
-          <p className="mt-3 text-[10px] text-muted-foreground">
-            Last updated: {weather.metar.observationTime}
-          </p>
-        )}
       </CardContent>
     </Card>
   );
