@@ -1,44 +1,54 @@
-import client from "./api";
 import type { FlightData, EDCT } from "@/types/api";
 
 export const flightService = {
-  /** Fetch flight data. Pass `mock=true` to use mock endpoint. */
-  getFlightData: async (flightID: string, mock = false): Promise<FlightData> => {
-    const params = mock ? { mock: "true" } : undefined;
-    const { data } = await client.get<FlightData>(`/ajms/${flightID}`, { params });
-    return data;
+  getFlightData: async (flightID: string): Promise<FlightData> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const id = flightID.toUpperCase().replace(/\s/g, ''); // Handles "UA 4433" or "UA4433"
+
+    // STRICT MOCK CONDITION: Only works for UA4433
+    if (id !== "UA4433") {
+      throw new Error(`Flight ${id} not found. (Mock only supports UA4433)`);
+    }
+
+    return {
+      flightNumber: "UA4433",
+      airline: "United Airlines",
+      aircraftType: "B739",
+      origin: "KEWR",
+      destination: "KORD",
+      departureAlternate: "KJFK",
+      arrivalAlternate: "KMDW",
+      departureGate: "C101",
+      arrivalGate: "B12",
+      scheduledDeparture: "14:00 EDT",
+      actualDeparture: null,
+      scheduledArrival: "15:30 CDT",
+      actualArrival: null,
+      status: "delayed", 
+      edct: null,
+    };
   },
 
-  /** Fetch flight stats with timezone info. */
   getFlightStats: async (flightID: string) => {
-    const { data } = await client.get(`/flightStatsTZ/${flightID}`);
-    return data;
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const id = flightID.toUpperCase().replace(/\s/g, '');
+    if (id !== "UA4433") throw new Error("Not found");
+
+    return {
+      route: "ELVAE1 COL ELVAE Q436 EWC J146 DJB J110 GSH J19 OBK",
+      clearance: "CLEARED AS FILED. CLIMB VIA SID. EXPECT FL340 10 MINS AFT DEP.",
+    };
   },
 
-  /** Fetch FlightAware data (respecting environment toggles). */
-  getFlightAwareData: async (flightID: string) => {
-    if (import.meta.env.VITE_APP_AVOID_FLIGHT_AWARE === "true") {
-      return { data: {}, error: true };
-    }
-    
-    if (import.meta.env.VITE_ENV === "dev") {
-      console.log("Getting flightaware data. Switch it off in .env if not needed");
-    }
-    
-    try {
-      const { data } = await client.get(`/flightAware/${flightID}`);
-      return { data, error: false };
-    } catch (error) {
-      console.error("FlightAware Error:", error);
-      return { data: {}, error: true };
-    }
-  },
+  getEDCT: async (flightID: string): Promise<EDCT | null> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const id = flightID.toUpperCase().replace(/\s/g, '');
+    if (id !== "UA4433") return null;
 
-  /** Fetch EDCT (departure clearance) for a flight. */
-  getEDCT: async (flightID: string, origin: string, destination: string): Promise<EDCT | null> => {
-    const { data } = await client.get<EDCT | null>(`/EDCTLookup/${flightID}`, {
-      params: { origin, destination },
-    });
-    return data;
+    return {
+      edct_departure_time: "14:45 EDT",
+      delay_duration: "45 mins",
+      reason: "Weather / Low Ceilings at destination",
+    };
   },
 };

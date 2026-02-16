@@ -4,13 +4,15 @@ export interface FlightData {
   aircraftType: string;
   origin: string;
   destination: string;
+  departureAlternate: string | null;
+  arrivalAlternate: string | null;
   departureGate: string;
   arrivalGate: string;
-  scheduledDeparture: string;
+  scheduledDeparture: string | null;
   actualDeparture: string | null;
-  scheduledArrival: string;
+  scheduledArrival: string | null;
   actualArrival: string | null;
-  status: FlightStatus;
+  status: FlightStatus | string;
   edct: EDCT | null;
 }
 
@@ -22,18 +24,19 @@ export type FlightStatus =
   | "arrived"
   | "delayed"
   | "cancelled"
-  | "diverted";
+  | "diverted"
+  | string;
 
 export interface EDCT {
-  edctTime: string;
-  tMinus: number;
-  controlElement: string;
+  edct_departure_time: string;
+  delay_duration: string;
   reason: string;
 }
 
+// Replaces the complex METAR/TAF widgets with our simple HTML injection blocks
 export interface WeatherBlock {
   raw: string;
-  zt: string; // The "55 mins ago" recency string from your backend
+  zt: string;
 }
 
 export interface AirportWeather {
@@ -42,7 +45,7 @@ export interface AirportWeather {
   metar: WeatherBlock | null;
   taf: WeatherBlock | null;
   datis: WeatherBlock | null;
-  nas: NASStatus | null; // Leave NASStatus interface exactly as it is further down the file
+  nas: NASStatus | null;
 }
 
 export interface NASStatus {
@@ -53,11 +56,22 @@ export interface NASStatus {
   notes: string[];
 }
 
+// Updated to match the mock data structure for Gates
+export interface GateFlight {
+  flightNumber: string;
+  destination: string;
+  status: string;
+  aircraftType: string;
+  scheduledDeparture: string;
+  estimatedDeparture?: string;
+}
+
 export interface GateInfo {
   airport: string;
   gate: string;
   terminal: string;
-  flights: FlightData[];
+  currentFlight: GateFlight | null;
+  upcomingFlights: GateFlight[];
 }
 
 export interface SearchSuggestion {

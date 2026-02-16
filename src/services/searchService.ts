@@ -1,31 +1,58 @@
-import client from "./api";
 import type { SearchSuggestion } from "@/types/api";
 
 export const searchService = {
-  /** Fetch autocomplete suggestions. */
+  /** Mock Suggestions based exactly on our 3 test cases */
   getSuggestions: async (
     query: string,
-    email: string,
-    limit = 10,
+    email?: string,
+    limit = 10
   ): Promise<SearchSuggestion[]> => {
-    if (!query.trim()) return [];
-    // Changed 'q' to 'query' to match backend expectations
-    const { data } = await client.get<SearchSuggestion[]>(
-      `/searches/suggestions/${encodeURIComponent(email)}`,
-      { params: { query, limit } }, 
-    );
-    return data;
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const q = query.toUpperCase().replace(/\s/g, "");
+    const suggestions: SearchSuggestion[] = [];
+
+    // 1. Mock Airport Match
+    if ("KEWR".includes(q) || "EWR".includes(q)) {
+      suggestions.push({
+        type: "airport", // Strictly lowercase so typeIcons["airport"] works!
+        value: "KEWR",
+        label: "KEWR",
+        sublabel: "Newark Liberty Intl",
+      });
+    }
+
+    // 2. Mock Flight Match
+    if ("UA4433".includes(q)) {
+      suggestions.push({
+        type: "flight", // Strictly lowercase so typeIcons["flight"] works!
+        value: "UA4433",
+        label: "UA 4433",
+        sublabel: "KEWR → KORD",
+      });
+    }
+
+    // 3. Mock Gate Match
+    if ("C101".includes(q)) {
+      suggestions.push({
+        type: "gate", // Strictly lowercase so typeIcons["gate"] works!
+        value: "C101",
+        label: "C101",
+        sublabel: "Terminal C - Newark",
+      });
+    }
+
+    return suggestions;
   },
 
-  /** Fetch raw search query results. */
+  /** Mock raw query fallback */
   fetchRawQuery: async (query: string): Promise<any> => {
-    // Re-added from your legacy cirrostrats frontend
-    const { data } = await client.get('/query', { params: { search: query } });
-    return data;
+    return { mock: true };
   },
 
-  /** Track a selected suggestion for analytics / recent searches. */
-  submitSearch: async (suggestion: SearchSuggestion, email: string): Promise<void> => {
-    await client.post("/searches/track", { ...suggestion, email });
+  /** Mock tracking (does nothing locally) */
+  submitSearch: async (suggestion: SearchSuggestion, email?: string): Promise<void> => {
+    console.log("Mock tracked search:", suggestion);
   },
 };

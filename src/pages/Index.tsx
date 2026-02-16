@@ -5,7 +5,6 @@ import { SearchBar } from "@/components/composite/SearchBar";
 import { useAuth } from "@/hooks/use-auth";
 import { useRecentSearches } from "@/hooks/use-recent-searches";
 import { useSearch } from "@/hooks/use-search";
-import { searchService } from "@/services/searchService";
 import type { SearchSuggestion } from "@/types/api";
 
 const quickLinks = [
@@ -29,7 +28,20 @@ const Index = () => {
   // 1. Use the real API hook instead of mock state
   const { suggestions, isLoading, debouncedSearch, submitSearch } = useSearch();
 
-  // 2. Handle when user TYPES but doesn't select a dropdown item
+  // 2. Handle when user CLICKS a dropdown item
+  const handleSelect = useCallback(
+    (s: SearchSuggestion) => {
+      addRecent(s);
+      submitSearch(s); // Track it in backend
+      
+      // The API returns 'value' or 'label', we use 'value' to fetch details
+      const searchId = s.value || s.label;
+      navigate(`/details?q=${encodeURIComponent(searchId)}&type=${s.type}`);
+    },
+    [navigate, addRecent, submitSearch],
+  );
+
+  // 3. Handle when user TYPES but doesn't select a dropdown item
   const handleRawSearchSubmit = useCallback(async (query: string) => {
     if (!query.trim()) return;
     
@@ -43,26 +55,21 @@ const Index = () => {
       return;
     }
 
-    // Fallback: If no exact match in dropdown, assume it's an airport or flight ID and try to load it
-    // (This mimics your old handleStringSubmit logic)
-    const fallbackType = query.length <= 4 && !/\d/.test(query) ? "airport" : "flight";
-    
-    navigate(`/details?q=${encodeURIComponent(query.toUpperCase())}&type=${fallbackType}`);
-  }, [suggestions, navigate]);
+    // Fallback: Smartly determine what the raw string likely is
+    let fallbackType = "flight"; 
+    const upperQuery = query.toUpperCase();
 
-  // 3. Handle when user CLICKS a dropdown item
-  const handleSelect = useCallback(
-    (s: SearchSuggestion) => {
-      addRecent(s);
-      submitSearch(s); // Track it in backend
-      
-      // The API returns 'value' or 'label', we use 'value' to fetch details
-      // Some backend objects might store the real ID in metadata, so we default to value
-      const searchId = s.value || s.label;
-      navigate(`/details?q=${encodeURIComponent(searchId)}&type=${s.type}`);
-    },
-    [navigate, addRecent, submitSearch],
-  );
+    // If it's 3-4 letters with NO numbers, it's an airport
+    if (upperQuery.length <= 4 && !/\d/.test(upperQuery)) {
+      fallbackType = "airport";
+    } 
+    // If it's a letter followed by numbers (e.g. "C101") or has a dash (e.g. "EWR-C101"), it's a gate
+    else if (/^[A-Z]\d+$/.test(upperQuery) || upperQuery.includes('-')) {
+      fallbackType = "gate";
+    }
+
+    navigate(`/details?q=${encodeURIComponent(upperQuery)}&type=${fallbackType}`);
+  }, [suggestions, navigate, handleSelect]);
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-US", {
@@ -103,7 +110,7 @@ const Index = () => {
         />
 
         {/* Quick links */}
-        <div className="mt-4 flex items-center justify-center gap-2">
+        {/* <div className="mt-4 flex items-center justify-center gap-2">
           <span className="text-xs text-muted-foreground">Quick:</span>
           {quickLinks.map((link) => (
             <button
@@ -123,7 +130,7 @@ const Index = () => {
               {link.label}
             </button>
           ))}
-        </div>
+        </div> */}
 
         {/* Recent searches */}
         {recent.length > 0 && (
