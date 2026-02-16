@@ -1,7 +1,9 @@
-import { Plane, CloudSun, Radio } from "lucide-react";
+import { Plane, CloudSun, Radio, Clock, X } from "lucide-react";
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/composite/SearchBar";
+import { useAuth } from "@/hooks/use-auth";
+import { useRecentSearches } from "@/hooks/use-recent-searches";
 import type { SearchSuggestion } from "@/types/api";
 
 const quickLinks = [
@@ -20,10 +22,18 @@ const mockSuggestions: SearchSuggestion[] = [
   { type: "gate", value: "JFK-B22", label: "B22", sublabel: "JFK Terminal 4" },
 ];
 
+const typeIcons: Record<string, React.ElementType> = {
+  flight: Plane,
+  airport: CloudSun,
+  gate: Radio,
+};
+
 const Index = () => {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user, isAnonymous } = useAuth();
+  const { recent, addRecent, clearRecent } = useRecentSearches();
 
   const handleSearch = useCallback((query: string) => {
     if (!query.trim()) {
@@ -31,7 +41,6 @@ const Index = () => {
       return;
     }
     setLoading(true);
-    // Simulate API — filter mock data
     setTimeout(() => {
       const q = query.toLowerCase();
       setSuggestions(
@@ -48,10 +57,19 @@ const Index = () => {
 
   const handleSelect = useCallback(
     (s: SearchSuggestion) => {
-      navigate(`/details?q=${encodeURIComponent(s.value)}`);
+      addRecent(s);
+      navigate(`/details?q=${encodeURIComponent(s.value)}&type=${s.type}`);
     },
-    [navigate],
+    [navigate, addRecent],
   );
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center aviation-grid">
@@ -67,6 +85,11 @@ const Index = () => {
           <p className="mt-2 text-sm text-muted-foreground">
             Real-time flight tracking, weather, and gate information
           </p>
+          {!isAnonymous && user?.displayName && (
+            <p className="mt-1 text-xs text-primary">
+              Welcome back, {user.displayName}
+            </p>
+          )}
         </div>
 
         {/* Search */}
@@ -83,13 +106,65 @@ const Index = () => {
           {quickLinks.map((link) => (
             <button
               key={link.label}
-              onClick={() => navigate(`/details?q=${link.label}`)}
+              onClick={() => {
+                const s: SearchSuggestion = {
+                  type: link.type as SearchSuggestion["type"],
+                  value: link.label,
+                  label: link.label,
+                  sublabel: "",
+                };
+                addRecent(s);
+                navigate(`/details?q=${link.label}&type=${link.type}`);
+              }}
               className="rounded-md bg-secondary px-3 py-1 font-mono text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
             >
               {link.label}
             </button>
           ))}
         </div>
+
+        {/* Recent searches */}
+        {recent.length > 0 && (
+          <div className="mt-8">
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                Recent Searches
+              </div>
+              <button
+                onClick={clearRecent}
+                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-3 w-3" />
+                Clear
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {recent.map((s) => {
+                const Icon = typeIcons[s.type] ?? Plane;
+                return (
+                  <button
+                    key={s.value}
+                    onClick={() => handleSelect(s)}
+                    className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors hover:border-primary/30"
+                  >
+                    <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-mono text-xs font-medium text-foreground">
+                        {s.label}
+                      </p>
+                      {s.sublabel && (
+                        <p className="truncate text-[10px] text-muted-foreground">
+                          {s.sublabel}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Feature cards */}
         <div className="mt-12 grid grid-cols-3 gap-4">
@@ -107,6 +182,11 @@ const Index = () => {
               <p className="mt-0.5 text-[11px] text-muted-foreground">{feat.desc}</p>
             </div>
           ))}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 pb-6 text-center">
+          <p className="text-[10px] text-muted-foreground">{dateStr}</p>
         </div>
       </div>
     </div>
